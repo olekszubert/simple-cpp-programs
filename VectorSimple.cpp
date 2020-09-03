@@ -20,13 +20,23 @@ template<typename T>
 class Vector
 {
 public:
-	Vector() 
-	{ 
+	Vector()
+	{
 		std::cout << "Vector Construct\n";
-		Realloc(2); 
+		Realloc(2);
 	}
 
-	~Vector() {	}
+	Vector(std::initializer_list<T> list) 
+	{
+		Realloc(list.size());
+		std::copy(list.begin(), list.end(), m_Data);
+		m_Size = list.size();
+	}
+
+	~Vector() 
+	{ 
+		std::cout << "Vector Destruct...\n"; 
+	}
 
 	void PushBack(const T& value)
 	{
@@ -97,7 +107,7 @@ public:
 		return m_Data[index];
 	}
 
-	void Reserve(size_t newCapacity) 
+	void Reserve(size_t newCapacity)
 	{
 		std::cout << "Reserve called, new capacity: " << newCapacity << "\n";
 		Realloc(newCapacity);
@@ -128,10 +138,10 @@ private:
 		//Dont use memcpy - for more complex types we need a copy constructor
 		for (size_t i = 0; i < m_Size; ++i)
 			newBlock[i] = m_Data[i];
-			//newBlock[i] = std::move(m_Data[i]); //if there's no move constr/oper - will just copy
+		//newBlock[i] = std::move(m_Data[i]); //if there's no move constr/oper - will just copy
 
-		//for (size_t i = 0; i < m_Size; i++)
-		//	m_Data[i].~T();
+	//for (size_t i = 0; i < m_Size; i++)
+	//	m_Data[i].~T();
 
 		delete[] m_Data;
 		//::operator delete(m_Data, m_Capacity * sizeof(T));
@@ -144,11 +154,14 @@ public:
 	size_t Size() const { return m_Size; }
 	size_t Capacity() const { return m_Capacity; }
 
+	//begin();
+	//end();
+
 private:
 	T* m_Data = nullptr;
 
-	size_t m_Capacity = 0;
 	size_t m_Size = 0;
+	size_t m_Capacity = 0;
 };
 
 
@@ -157,7 +170,7 @@ private:
 struct Vector3
 {
 	float x = 0.0f, y = 0.0f, z = 0.0f;
-	Vector3() { std::cout << "Construct\n"; }
+	Vector3() { std::cout << "Vector 3 Construct\n"; }
 	Vector3(float scalar) : x(scalar), y(scalar), z(scalar) { std::cout << "Construct\n"; }
 	Vector3(float x, float y, float z) : x(x), y(y), z(z) { std::cout << "Construct\n"; }
 
@@ -177,7 +190,7 @@ struct Vector3
 
 	~Vector3()
 	{
-		std::cout << "Destroy\n";
+		std::cout << "Vector 3 Destruct\n";
 	}
 
 	Vector3& operator=(const Vector3& other)
@@ -343,6 +356,12 @@ int main()
 		PrintVector(vec4);
 		std::cout << "-----------------------------------------Vec4 PushBack^\n";
 
-		return 0;
+		Vector<int> vec5 = { 1,2,3,4,5 };
+		vec5.PushBack(1);
+		PrintVector(vec5);
+		std::cout << "-----------------------------------------Vec5 initializer_list^\n";
+
+		vec2.~Vector();
 	}
+	return 0;
 }
